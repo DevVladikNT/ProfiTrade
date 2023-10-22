@@ -6,14 +6,14 @@ import asyncio
 
 
 bot = Bot(token=Config.token)
-dp = Dispatcher(bot=bot)
+dp = Dispatcher()
 
 
 async def main():
     from handlers import dp
     try:
         print('Bot is working...')
-        await dp.start_polling()
+        await dp.start_polling(bot)
     finally:
         await bot.session.close()
 

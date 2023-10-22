@@ -13,23 +13,11 @@ retry_settings = RetryClientSettings(use_retry=True, max_retry_attempt=2)
 with open('../../ProfiTrade_tools/tinkoff_token.txt') as file:
     TOKEN = file.read()
 
-PRICES = {
-    'yandex': 0,
-    'sber': 0,
-    'vk': 0,
-    'qiwi': 0,
-}
-PRICE_LISTS = {
-    'yandex': None,
-    'sber': None,
-    'vk': None,
-    'qiwi': None,
-}
+PRICES = {}
+PRICE_LISTS = {}
 FIGI = {
     'yandex': 'BBG006L8G4H1',
     'sber': 'BBG004730N88',
-    'vk': 'BBG00178PGX3',
-    'qiwi': 'BBG005D1WCQ1',
 }
 
 
@@ -38,14 +26,14 @@ def obj_to_float(obj):
     return obj.units + float(obj.nano) / 10**9
 
 
-async def get_price(company):
+async def get_price(figi):
     global PRICES, PRICE_LISTS
     candle_list = []
     async with AsyncRetryingClient(TOKEN, settings=retry_settings) as client:
         async for candle in client.get_all_candles(
-            figi=FIGI[company],
-            from_=now() - timedelta(minutes=60),
-            interval=CandleInterval.CANDLE_INTERVAL_1_MIN,
+            figi=figi,
+            from_=now() - timedelta(hours=48),
+            interval=CandleInterval.CANDLE_INTERVAL_HOUR,
         ):
             row = {
                 'open': obj_to_float(candle.open),
@@ -55,14 +43,14 @@ async def get_price(company):
                 'volume': candle.volume,
             }
             candle_list.append(row)
-    PRICES[company] = candle_list[-1]['close']
-    PRICE_LISTS[company] = pd.DataFrame(candle_list)
-    print(f'Price for {company} is {PRICES[company]}')
+    PRICES[figi] = candle_list[-1]['close']
+    PRICE_LISTS[figi] = pd.DataFrame(candle_list)
+    print(f'Price for {figi} is {PRICES[figi]}')
 
 
 async def job_creator():
-    for company in FIGI.keys():
-        await get_price(company)
+    for figi in FIGI.values():
+        await get_price(figi)
 
 
 async def run_scheduler():

@@ -27,7 +27,7 @@ def run():
         # etfs - фонды
         # currencies - валюты
         # futures - фьючерсы
-        for method in ['shares', 'bonds', 'etfs']:  # , 'currencies', 'futures']:
+        for method in ['shares']:  # , 'bonds', 'etfs']:  # , 'currencies', 'futures']:
             for item in getattr(instruments, method)().instruments:
                 l.append({
                     'ticker': item.ticker,

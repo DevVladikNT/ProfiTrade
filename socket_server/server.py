@@ -1,78 +1,94 @@
 import re
-import asyncio
 import pandas as pd
-from urllib.parse import unquote  # Декодировать крокозябры %D1%D2 обратно на русский
+from fastapi import FastAPI, Request
+import uvicorn
 
 from scheduler import run_scheduler, PRICES, PRICE_LISTS
 
+app = FastAPI()
 
-async def handle_connection(reader, writer):
-    addr = writer.get_extra_info('peername')
-    path_list = []
-    print('Connected by', addr)
 
-    # Receive data
-    try:
-        data = await reader.read(1024)
-        # url is like 127.0.0.1:2000/command/param
-        # path is like /command/param
-        path = data.decode().split(" ")[1][1:]
-        path_list = path.split('/')
-        print(f'Request {path_list[0]} for {unquote(path_list[1])}')
-    except ConnectionError:
-        print(f'Client suddenly closed while receiving from {addr}')
+@app.post("/price")
+async def price(request: Request):
+    body = await request.json()
 
-    # Make response
-    header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'
-    #
-    if path_list[0] == 'price':
-        data = f'{PRICES[path_list[1]]}'
-    elif path_list[0] == 'price_list':
-        data = f'{PRICE_LISTS[path_list[1]].close.tolist()}'
-    # localhost:port/search/company will use "company" as ticker
-    # if "company" is not ticker, it'll search "company" in name
-    # returns relevant figi
-    elif path_list[0] == 'search':
-        figi_df = pd.read_csv('figi_list.csv', index_col=0)
-        figi_list = figi_df[figi_df['ticker'] == path_list[1].upper()]
-        if len(figi_list) == 0:
-            index_list = []
-            for name in figi_df['name']:
-                index_list.append(True if re.search(unquote(path_list[1]), name, flags=re.IGNORECASE) else False)
-            figi_list = figi_df[index_list]
-        if len(figi_list) == 0:
-            data = 'Company not found'
-        else:
-            data = f'{figi_list["figi"].tolist()}'
+    response = PRICES.get(body['figi'], 'None')
+
+    return {
+        'response': response
+    }
+
+
+@app.post("/price_list")
+async def price_list(request: Request):
+    body = await request.json()
+
+    if body['figi'] in PRICE_LISTS.keys():
+        response = PRICE_LISTS.get(body['figi'])["close"].tolist()
     else:
-        data = 'Unknown path'
-    query = header.encode('utf-8') + data.encode('utf-8')
+        response = []
 
-    # Send data
-    # print(f'Send: "{data}" to: {addr}')
-    try:
-        writer.write(query)
-        await writer.drain()
-    except ConnectionError:
-        print(f'Client suddenly closed, cannot send')
-
-    writer.close()
-    await writer.wait_closed()
-    print('Disconnected by', addr)
+    return {
+        'response': response
+    }
 
 
-async def main(host, port):
-    server = await asyncio.start_server(handle_connection, host, port)
-    # print('Start scheduler...')
-    # await run_scheduler()
-    print('Start server...')
-    async with server:
-        await server.serve_forever()
+@app.post("/data")
+async def data(request: Request):
+    body = await request.json()
+
+    if body['figi'] in PRICE_LISTS.keys():
+        response = PRICE_LISTS.get(body['figi']).to_json(orient="records")
+    else:
+        response = []
+
+    return {
+        'response': response
+    }
+
+
+@app.post("/search")
+async def search(request: Request):
+    body = await request.json()
+
+    # Search by figi
+    figi_df = pd.read_csv('figi_list.csv', index_col=0)
+    figi_list = figi_df[figi_df['figi'] == body['text']]
+
+    # Search by ticker
+    if len(figi_list) == 0:
+        figi_df = pd.read_csv('figi_list.csv', index_col=0)
+        figi_list = figi_df[figi_df['ticker'] == body['text'].upper()]
+
+    # Search by name
+    if len(body['text']) > 0 and len(figi_list) == 0:
+        index_mask = []
+        for name in figi_df['name']:
+            index_mask.append(True if re.search(body['text'], name, flags=re.IGNORECASE) else False)
+        figi_list = figi_df[index_mask]
+
+    # If haven't been found
+    if len(figi_list) == 0:
+        response = 'Company not found'
+    else:
+        response = figi_list.to_json(orient="records")
+
+    return {
+        'response': response
+    }
+
+
+@app.on_event("startup")
+async def startup():
+    print('Start scheduler...')
+    await run_scheduler()
+
 
 HOST, PORT = '127.0.0.1', 2000
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     try:
-        asyncio.run(main(HOST, PORT))
+        uvicorn.run(app, host=HOST, port=PORT)
     except KeyboardInterrupt:
         print('\nServer has been stopped!')

@@ -1,4 +1,4 @@
-from src.config import Config
+from telegram_bot.config import Config
 import sqlite3
 
 

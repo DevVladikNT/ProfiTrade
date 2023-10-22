@@ -1,22 +1,25 @@
+import requests
 from aiogram.types import LabeledPrice, Message, PreCheckoutQuery, ContentType
-from aiogram.dispatcher.filters import Command
+from aiogram.filters import Command
 
-from src.bot import bot, dp
+from telegram_bot.bot import bot, dp
 
 
-@dp.message_handler(Command('start'))
+@dp.message(Command('start'))
 async def start(message: Message):
     await bot.send_message(message.chat.id, 'Hello World!')
 
 
-@dp.message_handler(Command('help'))
+@dp.message(Command('help'))
 async def start(message: Message):
     await bot.send_message(message.chat.id, 'Some help')
 
 
-@dp.message_handler(Command('get_id'))
+@dp.message(Command('get_id'))
 async def start(message: Message):
-    await bot.send_message(message.chat.id, f'Your id is: {message.from_user.id}')
+    await bot.send_message(message.chat.id,
+                           f'Your id is `{message.from_user.id}` (click to copy)',
+                           parse_mode='markdown')
 
 # price = [LabeledPrice(label='Notebook', amount=100*100)]  # цена = цена * 100, хз почему
 #
