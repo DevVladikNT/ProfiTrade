@@ -1,27 +1,27 @@
-import requests
-from aiogram.types import LabeledPrice, Message, PreCheckoutQuery, ContentType
+from aiogram import Router
+from aiogram.types import Message
 from aiogram.filters import Command
 
-from telegram_bot.bot import bot, dp
+router = Router()
 
 
-@dp.message(Command('start'))
+@router.message(Command('start'))
 async def start(message: Message):
-    await bot.send_message(message.chat.id, 'Hello World!')
+    await message.answer('Hello World!')
 
 
-@dp.message(Command('help'))
-async def start(message: Message):
-    await bot.send_message(message.chat.id, 'Some help')
+@router.message(Command('help'))
+async def help_(message: Message):
+    await message.answer('Some help')
 
 
-@dp.message(Command('get_id'))
-async def start(message: Message):
-    await bot.send_message(message.chat.id,
-                           f'Your id is `{message.from_user.id}` (click to copy)',
-                           parse_mode='markdown')
+@router.message(Command('get_id'))
+async def get_id(message: Message):
+    await message.answer(f'Your id is `{message.from_user.id}` (click to copy)',
+                         parse_mode='markdown')
 
-# price = [LabeledPrice(label='Notebook', amount=100*100)]  # цена = цена * 100, хз почему
+# цена = цена * 100, хз почему
+# price = [LabeledPrice(label='Notebook', amount=100*100)]
 #
 #
 # @dp.message_handler(Command('buy'))

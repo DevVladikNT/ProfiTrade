@@ -1,4 +1,3 @@
-import random
 import pandas as pd
 from datetime import timedelta
 
@@ -10,7 +9,7 @@ from tinkoff.invest.retrying.settings import RetryClientSettings
 from tinkoff.invest.utils import now
 
 retry_settings = RetryClientSettings(use_retry=True, max_retry_attempt=2)
-with open('../../ProfiTrade_tools/tinkoff_token.txt') as file:
+with open('../ProfiTrade_tools/tinkoff_token.txt') as file:
     TOKEN = file.read()
 
 PRICES = {}

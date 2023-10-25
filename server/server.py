@@ -1,5 +1,6 @@
 import re
 import pandas as pd
+
 from fastapi import FastAPI, Request
 import uvicorn
 
@@ -52,19 +53,21 @@ async def search(request: Request):
     body = await request.json()
 
     # Search by figi
-    figi_df = pd.read_csv('figi_list.csv', index_col=0)
+    figi_df = pd.read_csv('server/figi_list.csv', index_col=0)
     figi_list = figi_df[figi_df['figi'] == body['text']]
 
     # Search by ticker
     if len(figi_list) == 0:
-        figi_df = pd.read_csv('figi_list.csv', index_col=0)
         figi_list = figi_df[figi_df['ticker'] == body['text'].upper()]
 
     # Search by name
     if len(body['text']) > 0 and len(figi_list) == 0:
         index_mask = []
         for name in figi_df['name']:
-            index_mask.append(True if re.search(body['text'], name, flags=re.IGNORECASE) else False)
+            index_mask.append(
+                True if re.search(body['text'], name, flags=re.IGNORECASE)
+                else False
+            )
         figi_list = figi_df[index_mask]
 
     # If haven't been found
@@ -82,6 +85,7 @@ async def search(request: Request):
 async def startup():
     print('Start scheduler...')
     await run_scheduler()
+    print('Scheduler started!')
 
 
 HOST, PORT = '127.0.0.1', 2000

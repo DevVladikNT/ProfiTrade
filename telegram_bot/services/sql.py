@@ -1,4 +1,4 @@
-from telegram_bot.config import Config
+# from telegram_bot.config import Config
 import sqlite3
 
 
@@ -10,4 +10,7 @@ class DataBase:
 
     async def add_user(self, user_id):
         with self.connect:
-            return self.cursor.execute("""INSERT INTO users (user_id) VALUES (?)""", [user_id])
+            return self.cursor.execute(
+                """INSERT INTO users (user_id) VALUES (?)""",
+                [user_id]
+            )

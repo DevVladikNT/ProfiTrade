@@ -1,0 +1,9 @@
+aiogram
+APScheduler
+fastapi
+matplotlib
+numpy
+pandas
+tensorflow
+tinkoff-investments
+uvicorn

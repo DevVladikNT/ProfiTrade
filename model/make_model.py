@@ -25,7 +25,10 @@ df.reset_index(inplace=True)
 df.drop('index', axis=1, inplace=True)
 
 data_stats = np.array([df.min(axis=1), (df.max(axis=1) - df.min(axis=1))])
-df = pd.DataFrame((df.to_numpy() - data_stats[0].reshape(-1, 1)) / data_stats[1].reshape(-1, 1))
+df = pd.DataFrame(
+    (df.to_numpy() - data_stats[0].reshape(-1, 1)) /
+    data_stats[1].reshape(-1, 1)
+)
 
 x_list = []
 y_list = []
