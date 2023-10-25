@@ -1,0 +1,10 @@
+name: Linter
+on: [ push, pull_request ]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Ruff linter
+        uses: chartboost/ruff-action@v1
