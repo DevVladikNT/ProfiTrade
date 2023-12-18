@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 from aiogram import F, Router
 from aiogram.types import Message
 from aiogram.types.input_file import FSInputFile
-from aiogram.filters import Command
 
 router = Router()
 

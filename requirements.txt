@@ -4,6 +4,8 @@ fastapi
 matplotlib
 numpy
 pandas
+pydantic
+sqlalchemy
 tensorflow
 tinkoff-investments
 uvicorn

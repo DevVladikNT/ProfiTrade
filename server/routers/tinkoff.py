@@ -1,26 +1,14 @@
 import re
-import pandas as pd
 
-from fastapi import FastAPI, Request
-import uvicorn
+import pandas as pd
+from fastapi import APIRouter
 
 from scheduler import run_scheduler, CLOSE_PRICE, PRICES
 
-tags_metadata = [
-    {
-        "name": "tinkoff",
-        "description": "Operations with prices and companies' info. Information has been taken from Tinkoff API.",
-        "externalDocs": {
-            "description": "Tinkoff API",
-            "url": "https://developer.tinkoff.ru/docs/api",
-        },
-    },
-]
-
-app = FastAPI(openapi_tags=tags_metadata)
+router = APIRouter()
 
 
-@app.get("/close_price/{figi}", tags=['tinkoff'], summary='Last close price')
+@router.get("/close_price/{figi}", tags=['tinkoff'], summary='Last close price')
 async def price(figi: str):
     """
     Returns last updated close price for company.
@@ -34,7 +22,7 @@ async def price(figi: str):
     }
 
 
-@app.get("/close_prices/{figi}", tags=['tinkoff'], summary='List of close prices')
+@router.get("/close_prices/{figi}", tags=['tinkoff'], summary='List of close prices')
 async def price_list(figi: str):
     """
     Returns list of last close prices for company.
@@ -51,7 +39,7 @@ async def price_list(figi: str):
     }
 
 
-@app.get("/prices/{figi}", tags=['tinkoff'], summary='All info about company')
+@router.get("/prices/{figi}", tags=['tinkoff'], summary='All info about company')
 async def data(figi: str):
     """
     Returns list of dicts with {open, high, low, close, volume} values for company.
@@ -68,7 +56,7 @@ async def data(figi: str):
     }
 
 
-@app.get("/search/{string}", tags=['tinkoff'], summary='Search company')
+@router.get("/search/{string}", tags=['tinkoff'], summary='Search company')
 async def search(string: str):
     """
     Returns list of companies which match input string with their figi/ticker/name.
@@ -105,18 +93,8 @@ async def search(string: str):
     }
 
 
-@app.on_event("startup")
+@router.on_event("startup")
 async def startup():
     print('Start scheduler...')
     await run_scheduler()
     print('Scheduler started!')
-
-
-HOST, PORT = '127.0.0.1', 2000
-
-
-if __name__ == '__main__':
-    try:
-        uvicorn.run(app, host=HOST, port=PORT)
-    except KeyboardInterrupt:
-        print('\nServer has been stopped!')
