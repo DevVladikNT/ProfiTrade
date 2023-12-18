@@ -4,28 +4,45 @@ import pandas as pd
 from fastapi import FastAPI, Request
 import uvicorn
 
-from scheduler import run_scheduler, PRICES, PRICE_LISTS
+from scheduler import run_scheduler, CLOSE_PRICE, PRICES
 
-app = FastAPI()
+tags_metadata = [
+    {
+        "name": "tinkoff",
+        "description": "Operations with prices and companies' info. Information has been taken from Tinkoff API.",
+        "externalDocs": {
+            "description": "Tinkoff API",
+            "url": "https://developer.tinkoff.ru/docs/api",
+        },
+    },
+]
+
+app = FastAPI(openapi_tags=tags_metadata)
 
 
-@app.post("/price")
-async def price(request: Request):
-    body = await request.json()
+@app.get("/close_price/{figi}", tags=['tinkoff'], summary='Last close price')
+async def price(figi: str):
+    """
+    Returns last updated close price for company.
 
-    response = PRICES.get(body['figi'], 'None')
+    - **param figi**: Company's id.
+    """
+    response = CLOSE_PRICE.get(figi, 'None')
 
     return {
         'response': response
     }
 
 
-@app.post("/price_list")
-async def price_list(request: Request):
-    body = await request.json()
+@app.get("/close_prices/{figi}", tags=['tinkoff'], summary='List of close prices')
+async def price_list(figi: str):
+    """
+    Returns list of last close prices for company.
 
-    if body['figi'] in PRICE_LISTS.keys():
-        response = PRICE_LISTS.get(body['figi'])["close"].tolist()
+    - **param figi**: Company's id.
+    """
+    if figi in PRICES.keys():
+        response = PRICES.get(figi)["close"].tolist()
     else:
         response = []
 
@@ -34,12 +51,15 @@ async def price_list(request: Request):
     }
 
 
-@app.post("/data")
-async def data(request: Request):
-    body = await request.json()
+@app.get("/prices/{figi}", tags=['tinkoff'], summary='All info about company')
+async def data(figi: str):
+    """
+    Returns list of dicts with {open, high, low, close, volume} values for company.
 
-    if body['figi'] in PRICE_LISTS.keys():
-        response = PRICE_LISTS.get(body['figi']).to_json(orient="records")
+    - **param figi**: Company's id.
+    """
+    if figi in PRICES.keys():
+        response = PRICES.get(figi).to_json(orient="records")
     else:
         response = []
 
@@ -48,24 +68,28 @@ async def data(request: Request):
     }
 
 
-@app.post("/search")
-async def search(request: Request):
-    body = await request.json()
+@app.get("/search/{string}", tags=['tinkoff'], summary='Search company')
+async def search(string: str):
+    """
+    Returns list of companies which match input string with their figi/ticker/name.
+
+    - **param string**: Figi, ticker or name of company.
+    """
 
     # Search by figi
     figi_df = pd.read_csv('server/figi_list.csv', index_col=0)
-    figi_list = figi_df[figi_df['figi'] == body['text']]
+    figi_list = figi_df[figi_df['figi'] == string]
 
     # Search by ticker
     if len(figi_list) == 0:
-        figi_list = figi_df[figi_df['ticker'] == body['text'].upper()]
+        figi_list = figi_df[figi_df['ticker'] == string.upper()]
 
     # Search by name
-    if len(body['text']) > 0 and len(figi_list) == 0:
+    if len(string) > 0 and len(figi_list) == 0:
         index_mask = []
         for name in figi_df['name']:
             index_mask.append(
-                True if re.search(body['text'], name, flags=re.IGNORECASE)
+                True if re.search(string, name, flags=re.IGNORECASE)
                 else False
             )
         figi_list = figi_df[index_mask]

@@ -14,34 +14,30 @@ router = Router()
 COMPANIES = ['yandex', 'sber', 'vk', 'qiwi']
 
 
-@router.message(Command('price'))
-async def price(message: Message):
-    for company in COMPANIES:
-        response = requests.get(f'http://127.0.0.1:2000/price/{company}')
-        current_price = float(response.text)
-        response = requests.get(f'http://127.0.0.1:2000/price_list/{company}')
-        price_list = json.loads(response.text)
-
-        mean = np.mean(price_list)
-        growth = (current_price - mean) / mean
-        text = f'{company.title()}: *{current_price}* ' +\
-               f'({"+" if growth >= 0 else ""}{growth * 100:.2f}%)'
-        await message.answer(text, parse_mode='markdown')
+# @router.message(Command('price'))
+# async def price(message: Message):
+#     for company in COMPANIES:
+#         response = requests.get(f'http://127.0.0.1:2000/price/{company}')
+#         current_price = float(response.text)
+#         response = requests.get(f'http://127.0.0.1:2000/price_list/{company}')
+#         price_list = json.loads(response.text)
+#
+#         mean = np.mean(price_list)
+#         growth = (current_price - mean) / mean
+#         text = f'{company.title()}: *{current_price}* ' +\
+#                f'({"+" if growth >= 0 else ""}{growth * 100:.2f}%)'
+#         await message.answer(text, parse_mode='markdown')
 
 
 @router.message(F.text)
 async def get_info(message: Message):
     if message.text.startswith('/predict'):
         figi = re.sub('/predict', '', message.text)
-        request = {
-            'figi': figi,
-            'text': figi
-        }
 
-        response = requests.post('http://127.0.0.1:2000/search', json=request)
+        response = requests.post(f'http://127.0.0.1:2000/search/{figi}')
         companies_info = response.json()['response']
         company = json.loads(companies_info)[0]
-        response = requests.post('http://127.0.0.1:2000/price_list', json=request)
+        response = requests.post(f'http://127.0.0.1:2000/close_prices/{figi}')
         price_list = response.json()['response']
         if not price_list:
             await message.answer('This company is anavailable now')
@@ -50,10 +46,7 @@ async def get_info(message: Message):
         # mean = np.mean(price_list[-4:])
         growth = (price_list[-1] - price_list[-2]) / price_list[-2]
 
-        response = requests.post(
-            'http://127.0.0.1:2000/data',
-            json={'figi': company['figi']}
-        )
+        response = requests.post(f'http://127.0.0.1:2000/prices/{figi}')
         input_data = response.json()['response']
         response = requests.post(
             'http://127.0.0.1:3000/predict',
@@ -85,23 +78,14 @@ async def get_info(message: Message):
         await message.answer(text, parse_mode='markdown')
         await message.answer_photo(img)
     else:
-        request = {
-            'text': message.text
-        }
-        response = requests.post(
-            'http://127.0.0.1:2000/search',
-            json=request
-        )
+        response = requests.post(f'http://127.0.0.1:2000/search/{message.text}',)
         companies_info = response.json()['response']
         if companies_info == 'Company not found':
             await message.answer('Company not found')
         else:
             companies = json.loads(companies_info)
             for item in companies:
-                response = requests.post(
-                    'http://127.0.0.1:2000/price',
-                    json={'figi': item['figi']}
-                )
+                response = requests.post(f'http://127.0.0.1:2000/close_price/{item["figi"]}',)
                 current_price = response.json()['response']
                 text = f'*{item["name"]}* \[`{item["ticker"]}`]\n\n' +\
                        f'Current price: *{current_price}*\n' +\

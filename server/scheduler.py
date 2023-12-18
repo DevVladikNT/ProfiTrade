@@ -12,8 +12,8 @@ retry_settings = RetryClientSettings(use_retry=True, max_retry_attempt=2)
 with open('../ProfiTrade_tools/tinkoff_token.txt') as file:
     TOKEN = file.read()
 
+CLOSE_PRICE = {}
 PRICES = {}
-PRICE_LISTS = {}
 FIGI = {
     'yandex': 'BBG006L8G4H1',
     'sber': 'BBG004730N88',
@@ -26,7 +26,7 @@ def obj_to_float(obj):
 
 
 async def get_price(figi):
-    global PRICES, PRICE_LISTS
+    global CLOSE_PRICE, PRICES
     candle_list = []
     async with AsyncRetryingClient(TOKEN, settings=retry_settings) as client:
         async for candle in client.get_all_candles(
@@ -42,9 +42,9 @@ async def get_price(figi):
                 'volume': candle.volume,
             }
             candle_list.append(row)
-    PRICES[figi] = candle_list[-1]['close']
-    PRICE_LISTS[figi] = pd.DataFrame(candle_list)
-    print(f'Price for {figi} is {PRICES[figi]}')
+    CLOSE_PRICE[figi] = candle_list[-1]['close']
+    PRICES[figi] = pd.DataFrame(candle_list)
+    print(f'Price for {figi} is {CLOSE_PRICE[figi]}')
 
 
 async def job_creator():
@@ -53,6 +53,7 @@ async def job_creator():
 
 
 async def run_scheduler():
+    await job_creator()
     scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
     scheduler.add_job(job_creator, 'interval', seconds=60)
     # scheduler.add_job(main, 'cron', hour=12, minute=0, second=0)
