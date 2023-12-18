@@ -3,6 +3,7 @@ import uvicorn
 
 from db.base import Base
 from db.session import engine
+from routers.operations import router as operations_router
 from routers.tinkoff import router as tinkoff_router
 from routers.users import router as users_router
 
@@ -19,11 +20,16 @@ tags_metadata = [
         "name": "user",
         "description": "Operations with users.",
     },
+    {
+        "name": "operation",
+        "description": "Financial operations.",
+    },
 ]
 
 Base.metadata.create_all(bind=engine)
 app = FastAPI(openapi_tags=tags_metadata)
 
+app.include_router(operations_router)
 app.include_router(tinkoff_router)
 app.include_router(users_router)
 

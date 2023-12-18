@@ -1,7 +1,6 @@
-from sqlalchemy import Column, ForeignKey, Integer, Float, String, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, Float, String
 
-from server.db.base import Base
+from db.base import Base
 
 
 class Operation(Base):
@@ -10,7 +9,7 @@ class Operation(Base):
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     figi = Column(String(12))
-    type = Column(Boolean)
     price = Column(Float)
     amount = Column(Integer)
+    time = Column(Float)
 

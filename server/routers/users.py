@@ -1,34 +1,53 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
 from crud import users
 from db.session import get_db
-from schemas.user import UserBase, UserCreate
+from schemas.user import UserBase, UserCreate, UserModel
 
 router = APIRouter()
 
 
-@router.post('/users', status_code=201, tags=['user'])
+@router.post('/users',
+             response_model=UserModel,
+             status_code=201,
+             tags=['user'],
+             summary='Create user')
 async def create(db: Session = Depends(get_db), data: UserCreate = None):
-    return users.create_user(db, data)
-
-
-@router.get('/users/{id}', tags=['user'])
-async def read(db: Session = Depends(get_db), id: int = None):
-    user = users.read_user(db, id)
+    user = users.create_user(db, data)
     if not user:
         raise HTTPException(status_code=404)
     return user
 
 
-@router.put('/users/{id}', status_code=204, tags=['user'])
-async def update(db: Session = Depends(get_db), id: int = None, data: UserBase = None):
-    user = users.update_user(db, id, data)
+@router.get('/users/{id}',
+            response_model=UserModel,
+            tags=['user'],
+            summary='Find user')
+async def read(db: Session = Depends(get_db), id_: int = None):
+    user = users.read_user(db, id_)
     if not user:
         raise HTTPException(status_code=404)
+    return user
 
 
-@router.delete('/users/{id}', status_code=204, tags=['user'])
-async def delete(db: Session = Depends(get_db), id: int = None):
-    users.delete_user(db, id)
+@router.put('/users/{id}',
+            tags=['user'],
+            summary='Update user')
+async def update(db: Session = Depends(get_db), id_: int = None, data: UserBase = None):
+    user = users.update_user(db, id_, data)
+    if not user:
+        raise HTTPException(status_code=404)
+    return Response(status_code=204)
+
+
+@router.delete('/users/{id}',
+               tags=['user'],
+               summary='Delete user')
+async def delete(db: Session = Depends(get_db), id_: int = None):
+    rows_count = users.delete_user(db, id_)
+    if not rows_count:
+        raise HTTPException(status_code=404)
+    return Response(status_code=204)
+
 

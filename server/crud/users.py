@@ -9,6 +9,7 @@ def create_user(db: Session, data: UserCreate):
         id=data.id,
         username=data.username,
         language_code=data.language_code,
+        balance=10000.0,
     )
 
     try:
@@ -26,20 +27,24 @@ def read_user(db: Session, id_: int):
 
 
 def update_user(db: Session, id_: int, data: UserBase):
-    user = db.query(User).filter(User.id == id_).first()
+    user = db.query(User).get(id_)
     if not user:
         return None
     user.username = data.username
     user.language_code = data.language_code
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+    try:
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    except Exception as e:
+        print(e)
+        return None
 
     return user
 
 
 def delete_user(db: Session, id_: int):
-    user = db.query(User).filter(User.id == id_).delete()
+    rows_count = db.query(User).filter(User.id == id_).delete()
     db.commit()
-    return user
+    return rows_count
 

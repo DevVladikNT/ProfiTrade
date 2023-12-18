@@ -8,7 +8,9 @@ from scheduler import run_scheduler, CLOSE_PRICE, PRICES
 router = APIRouter()
 
 
-@router.get("/close_price/{figi}", tags=['tinkoff'], summary='Last close price')
+@router.get('/close_price/{figi}',
+            tags=['tinkoff'],
+            summary='Last close price')
 async def price(figi: str):
     """
     Returns last updated close price for company.
@@ -22,7 +24,9 @@ async def price(figi: str):
     }
 
 
-@router.get("/close_prices/{figi}", tags=['tinkoff'], summary='List of close prices')
+@router.get('/close_prices/{figi}',
+            tags=['tinkoff'],
+            summary='List of close prices')
 async def price_list(figi: str):
     """
     Returns list of last close prices for company.
@@ -39,7 +43,9 @@ async def price_list(figi: str):
     }
 
 
-@router.get("/prices/{figi}", tags=['tinkoff'], summary='All info about company')
+@router.get('/prices/{figi}',
+            tags=['tinkoff'],
+            summary='All info about company')
 async def data(figi: str):
     """
     Returns list of dicts with {open, high, low, close, volume} values for company.
@@ -56,7 +62,9 @@ async def data(figi: str):
     }
 
 
-@router.get("/search/{string}", tags=['tinkoff'], summary='Search company')
+@router.get('/search/{string}',
+            tags=['tinkoff'],
+            summary='Search company')
 async def search(string: str):
     """
     Returns list of companies which match input string with their figi/ticker/name.

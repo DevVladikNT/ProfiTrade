@@ -9,3 +9,6 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     id: int
 
+
+class UserModel(UserCreate):
+    balance: int
