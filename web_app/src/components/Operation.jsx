@@ -2,14 +2,14 @@ import axios from "axios";
 import { Flex, Text, Title, NumberInput, Button, Metric, Divider } from "@tremor/react";
 import { useEffect, useState } from "react";
 
-function Operation({figi, price, amount}) {
-    const [name, setName] = useState(figi);
+function Operation(props) {
+    const [name, setName] = useState(props.figi);
 
     useEffect(() => {
         const getData = async () => {
-            let response = await axios.get('http://localhost:2000/search/' + figi);
-            let company_name = response.data.response[0].name;
-            setName(company_name)
+            const response = await axios.get('http://localhost:2000/search/' + props.figi);
+            const company_name = response.data.response[0].name;
+            setName(company_name);
         };
         getData();
     }, []);
@@ -18,8 +18,8 @@ function Operation({figi, price, amount}) {
         <Flex flexDirection="col">
             <Divider>{name}</Divider>
             <Flex flexDirection="row">
-                <Title>{price}</Title>
-                <Text>{amount > 0 ? 'bought' : 'sold'} x{amount > 0 ? amount : -amount}</Text>
+                <Text>{props.amount > 0 ? 'bought' : 'sold'} x{props.amount > 0 ? props.amount : -props.amount}</Text>
+                <Title>{props.price}</Title>
             </Flex>
         </Flex>
     );

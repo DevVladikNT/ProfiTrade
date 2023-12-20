@@ -1,14 +1,38 @@
 import axios from "axios";
-import { Card, Flex, NumberInput, Button, Metric } from "@tremor/react";
+import { useEffect, useState } from "react";
+import { Card, Flex, Title, NumberInput, Button, Metric } from "@tremor/react";
 import Operation from "./Operation";
 
-let user_id = 1;
-let response = await axios.get('http://localhost:2000/operations/' + user_id);
-let operations = response.data;
+function UserOperations(props) {
+    const [operations, setOperations] = useState([]);
 
-function UserOperations() {
+    useEffect(() => {
+        const getData = async () => {
+            const response_ = await axios.get('http://localhost:2000/operations/' + props.userId);
+            const operations_ = response_.data;
+            setOperations(operations_);
+        };
+        getData();
+    }, []);
+
+    useEffect(() => {
+        if (props.updateFlag) {
+            console.log(`need to update`);
+            const getData = async () => {
+                const response_ = await axios.get('http://localhost:2000/operations/' + props.userId);
+                const operations_ = response_.data;
+                setOperations(operations_);
+            };
+            getData();
+            props.updatedOperations();
+            console.log(`updated`);
+        } else
+            console.log(`don't need update`);
+    }, [props]);
+
     return (
         <Card className="ml-4">
+            <Title>History</Title>
             {operations.map((operation, index) => (
                 <Operation
                     key={index}

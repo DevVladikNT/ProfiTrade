@@ -15,7 +15,8 @@ This is description
 tags_metadata = [
     {
         "name": "tinkoff",
-        "description": "Operations with prices and companies' info. Information has been taken from Tinkoff API.",
+        "description": "Operations with prices and companies' info."
+                       "Information has been taken from Tinkoff API.",
         "externalDocs": {
             "description": "Tinkoff API",
             "url": "https://developer.tinkoff.ru/docs/api",
