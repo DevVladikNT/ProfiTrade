@@ -18,7 +18,7 @@ def create_operation(db: Session, data: OperationBase):
                  .filter(Operation.user_id == User.id and Operation.figi == data.figi)
                  .first())
     # If we want to sell more than we have
-    if available[0] < data.amount * -1:
+    if available[0] is not None and available[0] < data.amount * -1:
         return None
     operation = Operation(
         user_id=data.user_id,

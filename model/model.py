@@ -4,23 +4,36 @@ import pandas as pd
 import pickle
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 app = FastAPI()
+
+origins = [
+    'http://localhost:5173',
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*'],
+)
+
+
 model = None
 
 
 @app.post("/predict")
 async def predict(request: Request):
     body = await request.json()
-    text = body['input']
-    input_data = json.loads(text)
+    input_data = body['input']
 
     window_size = 4
     alpha = 0.5
 
     df = pd.DataFrame(input_data)
-    df.drop('volume', axis=1, inplace=True)
+    df.drop(['time', 'volume'], axis=1, inplace=True)
     df['open_MA'] = df['open'].rolling(window=window_size).mean()
     df['high_MA'] = df['high'].rolling(window=window_size).mean()
     df['low_MA'] = df['low'].rolling(window=window_size).mean()

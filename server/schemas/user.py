@@ -11,4 +11,4 @@ class UserCreate(UserBase):
 
 
 class UserModel(UserCreate):
-    balance: int
+    balance: float

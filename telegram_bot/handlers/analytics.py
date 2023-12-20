@@ -33,10 +33,10 @@ async def get_info(message: Message):
     if message.text.startswith('/predict'):
         figi = re.sub('/predict', '', message.text)
 
-        response = requests.post(f'http://127.0.0.1:2000/search/{figi}')
+        response = requests.get(f'http://127.0.0.1:2000/search/{figi}')
         companies_info = response.json()['response']
-        company = json.loads(companies_info)[0]
-        response = requests.post(f'http://127.0.0.1:2000/close_prices/{figi}')
+        company = companies_info[0]
+        response = requests.get(f'http://127.0.0.1:2000/close_prices/{figi}')
         price_list = response.json()['response']
         if not price_list:
             await message.answer('This company is anavailable now')
@@ -45,7 +45,7 @@ async def get_info(message: Message):
         # mean = np.mean(price_list[-4:])
         growth = (price_list[-1] - price_list[-2]) / price_list[-2]
 
-        response = requests.post(f'http://127.0.0.1:2000/prices/{figi}')
+        response = requests.get(f'http://127.0.0.1:2000/prices/{figi}')
         input_data = response.json()['response']
         response = requests.post(
             'http://127.0.0.1:3000/predict',
@@ -77,14 +77,13 @@ async def get_info(message: Message):
         await message.answer(text, parse_mode='markdown')
         await message.answer_photo(img)
     else:
-        response = requests.post(f'http://127.0.0.1:2000/search/{message.text}',)
+        response = requests.get(f'http://127.0.0.1:2000/search/{message.text}')
         companies_info = response.json()['response']
         if companies_info == 'Company not found':
             await message.answer('Company not found')
         else:
-            companies = json.loads(companies_info)
-            for item in companies:
-                response = requests.post(f'http://127.0.0.1:2000/close_price/{item["figi"]}',)
+            for item in companies_info:
+                response = requests.get(f'http://127.0.0.1:2000/close_price/{item["figi"]}')
                 current_price = response.json()['response']
                 text = f'*{item["name"]}* \[`{item["ticker"]}`]\n\n' +\
                        f'Current price: *{current_price}*\n' +\

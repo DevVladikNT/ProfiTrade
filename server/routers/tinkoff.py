@@ -53,7 +53,7 @@ async def data(figi: str):
     - **param figi**: Company's id.
     """
     if figi in PRICES.keys():
-        response = PRICES.get(figi).to_json(orient="records")
+        response = PRICES.get(figi).to_dict("records")
     else:
         response = []
 
@@ -94,7 +94,9 @@ async def search(string: str):
     if len(figi_list) == 0:
         response = 'Company not found'
     else:
-        response = figi_list.to_json(orient="records")
+        response = figi_list.to_dict("records")
+
+    print(type(response))
 
     return {
         'response': response

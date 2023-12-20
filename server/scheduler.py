@@ -35,6 +35,7 @@ async def get_price(figi):
             interval=CandleInterval.CANDLE_INTERVAL_HOUR,
         ):
             row = {
+                'time': candle.time,
                 'open': obj_to_float(candle.open),
                 'high': obj_to_float(candle.high),
                 'low': obj_to_float(candle.low),
