@@ -32,6 +32,7 @@ async def read(db: Session = Depends(get_db), id: int = None):
 
 
 @router.put('/users/{id}',
+            status_code=202,
             tags=['user'],
             summary='Update user')
 async def update(db: Session = Depends(get_db), id: int = None, data: UserBase = None):

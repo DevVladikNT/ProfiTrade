@@ -6,6 +6,7 @@ from db.base import Base
 from db.session import engine
 from routers.operations import router as operations_router
 from routers.tinkoff import router as tinkoff_router
+from routers.tokens import router as tokens_router
 from routers.users import router as users_router
 
 description = """
@@ -46,6 +47,7 @@ app = FastAPI(
 
 app.include_router(operations_router)
 app.include_router(tinkoff_router)
+app.include_router(tokens_router)
 app.include_router(users_router)
 
 origins = [

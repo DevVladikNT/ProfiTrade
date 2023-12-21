@@ -1,3 +1,7 @@
+import re
+
+import requests
+
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import Command
@@ -7,6 +11,12 @@ router = Router()
 
 @router.message(Command('start'))
 async def start(message: Message):
+    user = {
+        'id': message.from_user.id,
+        'username': message.from_user.username,
+        'language_code': message.from_user.language_code,
+    }
+    requests.post('http://127.0.0.1:2000/users', json=user)
     await message.answer('Hello World!')
 
 
@@ -18,6 +28,23 @@ async def help_(message: Message):
 @router.message(Command('get_id'))
 async def get_id(message: Message):
     await message.answer(f'Your id is `{message.from_user.id}` (click to copy)',
+                         parse_mode='markdown')
+
+
+@router.message(Command('token'))
+async def token(message: Message):
+    time_delta = re.sub('/token', '', message.text)
+    time_delta = re.sub(' ', '', time_delta)
+    if time_delta == '':
+        await message.answer('Enter time period (in minutes)')
+        return
+
+    config = {
+        'user_id': message.from_user.id,
+        'time_delta': int(time_delta),
+    }
+    response = requests.post('http://127.0.0.1:2000/tokens', json=config)
+    await message.answer(f'`{response.text[1:-1]}`\n*(click to copy)*',
                          parse_mode='markdown')
 
 # цена = цена * 100, хз почему

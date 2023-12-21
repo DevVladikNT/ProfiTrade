@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useSnackbar } from 'notistack'
 import React, { useEffect, useState } from "react";
-import { Card, Text, Title } from "@tremor/react";
+import { Card, Divider, Text, Title } from "@tremor/react";
 
 import Operation from "./Operation";
 
@@ -18,7 +18,7 @@ function UserOperations(props) {
                     setNoOperations(true);
                     // enqueueSnackbar('UserOperations\n' + error, {variant: 'error'});
                 });
-                const operations_ = response_.data;
+                const operations_ = no_operations ? [] : response_.data;
                 props.setOperations(operations_);
             };
             getData();
@@ -29,7 +29,14 @@ function UserOperations(props) {
     return (
         <Card className="ml-4 min-w-[300px] flex flex-col">
             <Title>History</Title>
-            <Text>{ no_operations ? 'You haven\'t bought anything.' : '' }</Text>
+            {
+                no_operations ?
+                <>
+                    <Divider />
+                    <Text>You haven't bought anything.</Text>
+                </> : <></>
+                
+            }
             <div className="min-h-[100px] flex-[1_1_0] flex flex-col overflow-y-auto">
                 {props.operations.map((operation, index) => (
                     props.company.figi === operation.figi ?

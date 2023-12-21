@@ -15,7 +15,21 @@ function Profile(props) {
 
     const search = () => {
         const getData = async () => {
-            const response_ = await axios.get('http://localhost:2000/users/' + code).catch((error) => {
+            const message_ = {
+                message: props.device,
+                key: code,
+            };
+            const encrypted_ = await axios.post('http://localhost:2000/encrypt', message_).catch((error) => {
+                enqueueSnackbar('Profile\n' + error, {variant: 'error'});
+            });
+            const token_ = {
+                code: code,
+                message: encrypted_.data,
+            };
+            const user_id_ = await axios.put('http://localhost:2000/tokens', token_).catch((error) => {
+                enqueueSnackbar('Profile\n' + error, {variant: 'error'});
+            });
+            const response_ = await axios.get('http://localhost:2000/users/' + user_id_.data).catch((error) => {
                 enqueueSnackbar('Profile\n' + error, {variant: 'error'});
             });
             const user_ = response_.data;
@@ -29,8 +43,10 @@ function Profile(props) {
             search()
     }
 
-    // При каждом рендере информация будет меняться, поэтому посылаем сигнал, что поменяли данные
-    props.updatedProfile();
+    useEffect(() => {
+        props.updatedProfile();
+    }, [props]);
+    
 
     return (
         props.user.id === -1 ?
@@ -46,12 +62,12 @@ function Profile(props) {
             {
                 hint ?
                 <>
-                    <Text className={ "mt-4" }>To get your code use{' '}
+                    <Text className="mt-4 text-center">To get your code use{' '}
                         <a
                             href="https://t.me/profit_trade_bot"
                             target="_blank"
                             rel="noopener noreferrer"
-                        >telegram bot</a>.
+                        >telegram bot</a>
                     </Text>
                 </> : <></>
                 

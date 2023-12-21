@@ -56,7 +56,7 @@ async def job_creator():
 async def run_scheduler():
     await job_creator()
     scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
-    scheduler.add_job(job_creator, 'interval', seconds=60)
+    scheduler.add_job(job_creator, 'interval', seconds=30)
     # scheduler.add_job(main, 'cron', hour=12, minute=0, second=0)
     scheduler.start()
 

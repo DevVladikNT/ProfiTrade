@@ -25,7 +25,7 @@ async def create(db: Session = Depends(get_db), data: OperationBase = None):
 async def read(db: Session = Depends(get_db), user_id: int = None):
     data = operations.read_operations(db, user_id)
     if not data:
-        raise HTTPException(status_code=404)
+        return []
     return data
 
 
