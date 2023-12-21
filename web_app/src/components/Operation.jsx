@@ -3,23 +3,25 @@ import { Flex, Text, Title, Divider } from "@tremor/react";
 import { useEffect, useState } from "react";
 
 function Operation(props) {
-    const [name, setName] = useState(props.figi);
 
-    useEffect(() => {
-        const getData = async () => {
-            const response = await axios.get('http://localhost:2000/search/' + props.figi);
-            const company_name = response.data.response[0].name;
-            setName(company_name);
-        };
-        getData();
-    }, []);
+    const date = new Date(props.time * 1000);
 
     return (
         <Flex flexDirection="col">
-            <Divider>{name}</Divider>
+            <Divider />
             <Flex flexDirection="row">
                 <Text>{props.amount > 0 ? 'bought' : 'sold'} x{props.amount > 0 ? props.amount : -props.amount}</Text>
                 <Title>{props.price}</Title>
+            </Flex>
+            <Flex flexDirection="row">
+                <Text>
+                    {date.toLocaleDateString('en-US', { day: 'numeric' })}.
+                    {date.toLocaleDateString('en-US', { month: 'numeric' })}. 
+                    {date.toLocaleDateString('en-US', { year: 'numeric' })}
+                </Text>
+                <Text>
+                    {date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                </Text>
             </Flex>
         </Flex>
     );

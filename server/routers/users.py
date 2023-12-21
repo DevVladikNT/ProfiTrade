@@ -24,8 +24,8 @@ async def create(db: Session = Depends(get_db), data: UserCreate = None):
             response_model=UserModel,
             tags=['user'],
             summary='Find user')
-async def read(db: Session = Depends(get_db), id_: int = None):
-    user = users.read_user(db, id_)
+async def read(db: Session = Depends(get_db), id: int = None):
+    user = users.read_user(db, id)
     if not user:
         raise HTTPException(status_code=404)
     return user
@@ -34,8 +34,8 @@ async def read(db: Session = Depends(get_db), id_: int = None):
 @router.put('/users/{id}',
             tags=['user'],
             summary='Update user')
-async def update(db: Session = Depends(get_db), id_: int = None, data: UserBase = None):
-    user = users.update_user(db, id_, data)
+async def update(db: Session = Depends(get_db), id: int = None, data: UserBase = None):
+    user = users.update_user(db, id, data)
     if not user:
         raise HTTPException(status_code=404)
     return Response(status_code=204)
@@ -44,8 +44,8 @@ async def update(db: Session = Depends(get_db), id_: int = None, data: UserBase 
 @router.delete('/users/{id}',
                tags=['user'],
                summary='Delete user')
-async def delete(db: Session = Depends(get_db), id_: int = None):
-    rows_count = users.delete_user(db, id_)
+async def delete(db: Session = Depends(get_db), id: int = None):
+    rows_count = users.delete_user(db, id)
     if not rows_count:
         raise HTTPException(status_code=404)
     return Response(status_code=204)

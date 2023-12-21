@@ -1,30 +1,25 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { Card, Title } from "@tremor/react";
+import { useSnackbar } from 'notistack'
+import React, { useEffect, useState } from "react";
+import { Card, Text, Title } from "@tremor/react";
+
 import Operation from "./Operation";
 
 function UserOperations(props) {
-    const [operations, setOperations] = useState([]);
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-    useEffect(() => {
-        const getData = async () => {
-            const response_ = await axios.get('http://localhost:2000/operations/' + props.userId).catch((error) => {
-                enqueueSnackbar(error, {variant: 'error'});
-            });
-            const operations_ = response_.data;
-            setOperations(operations_);
-        };
-        getData();
-    }, []);
+    const [no_operations, setNoOperations] = useState(false);
 
     useEffect(() => {
         if (props.updateFlag) {
             const getData = async () => {
-                const response_ = await axios.get('http://localhost:2000/operations/' + props.userId).catch((error) => {
-                    enqueueSnackbar(error, {variant: 'error'});
+                setNoOperations(false);
+                const response_ = await axios.get('http://localhost:2000/operations/' + props.user.id).catch((error) => {
+                    setNoOperations(true);
+                    // enqueueSnackbar('UserOperations\n' + error, {variant: 'error'});
                 });
                 const operations_ = response_.data;
-                setOperations(operations_);
+                props.setOperations(operations_);
             };
             getData();
             props.updatedOperations();
@@ -32,16 +27,16 @@ function UserOperations(props) {
     }, [props]);
 
     return (
-        <Card className="ml-4 flex flex-col">
+        <Card className="ml-4 min-w-[300px] flex flex-col">
             <Title>History</Title>
-            
+            <Text>{ no_operations ? 'You haven\'t bought anything.' : '' }</Text>
             <div className="min-h-[100px] flex-[1_1_0] flex flex-col overflow-y-auto">
-                {operations.map((operation, index) => (
+                {props.operations.map((operation, index) => (
+                    props.company.figi === operation.figi ?
                     <Operation
+                        {...operation}
                         key={index}
-                        figi={operation.figi}
-                        price={operation.price}
-                        amount={operation.amount}/>
+                    /> : <React.Fragment key={index} />
                 ))}
             </div>
         </Card>

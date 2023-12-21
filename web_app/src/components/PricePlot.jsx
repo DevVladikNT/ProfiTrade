@@ -21,13 +21,13 @@ function PricePlot(props) {
     useEffect(() => {
         const getData = async () => {
             const response_ = await axios.get('http://localhost:2000/prices/' + props.company.figi).catch((error) => {
-                enqueueSnackbar(error, {variant: 'error'});
+                enqueueSnackbar('PricePlot\n' + error, {variant: 'error'});
             });
             const history_ = response_.data.response;
             setHistory(history_);
             setPrice(history_[history_.length - 1].close)
             const prediction_ = await axios.post('http://localhost:3000/predict', {'input': history_}).catch((error) => {
-                enqueueSnackbar(error, {variant: 'error'});
+                enqueueSnackbar('PricePlot\n' + error, {variant: 'error'});
             });
             const pred_ = prediction_.data.response;
             setPred(pred_);
@@ -51,13 +51,13 @@ function PricePlot(props) {
     useEffect(() => {
         const prices = setInterval(async () => {
             const response_ = await axios.get('http://localhost:2000/prices/' + props.company.figi).catch((error) => {
-                enqueueSnackbar(error, {variant: 'error'});
+                enqueueSnackbar('PricePlot\n' + error, {variant: 'error'});
             });
             const history_ = response_.data.response;
             setHistory(history_);
             setPrice(history_[history_.length - 1].close)
             const prediction_ = await axios.post('http://localhost:3000/predict', {'input': history_}).catch((error) => {
-                enqueueSnackbar(error, {variant: 'error'});
+                enqueueSnackbar('PricePlot\n' + error, {variant: 'error'});
             });
             const pred_ = prediction_.data.response;
             setPred(pred_);
@@ -90,20 +90,20 @@ function PricePlot(props) {
             return;
 
         const operation = {
-            user_id: props.userId,
+            user_id: props.user.id,
             figi: props.company.figi,
             price: price,
             amount: amount * sign,
         }
-        const getData = async () => {
+        const setData = async () => {
             const response = await axios.post('http://localhost:2000/operations', operation).catch((error) => {
-                enqueueSnackbar(error, {variant: 'error'});
+                enqueueSnackbar('PricePlot\n' + error, {variant: 'error'});
             });
         }
-        getData();
+        setData();
 
         setBuyAmount('');
-        props.needUpdateOperations();
+        props.needUpdate();
     };
 
     const handlerMouseEnter = (event) => {
@@ -112,7 +112,7 @@ function PricePlot(props) {
         setCanUpdate(false);
         const getData = async () => {
             const response_ = await axios.get('http://localhost:2000/close_price/' + props.company.figi).catch((error) => {
-                enqueueSnackbar(error, {variant: 'error'});
+                enqueueSnackbar('PricePlot\n' + error, {variant: 'error'});
             });
             const price_ = response_.data.response;
             setPrice(price_);
@@ -122,7 +122,7 @@ function PricePlot(props) {
 
     return (
         <Flex flexDirection='col'>
-            <Card>
+            <Card className='min-w-[600px]'>
                 <Flex flexDirection='row'>
                     <Title>{props.company.name}</Title>
                     <BadgeDelta deltaType={direction}>{Math.abs(growth)}%</BadgeDelta>

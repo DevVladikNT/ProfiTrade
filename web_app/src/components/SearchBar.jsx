@@ -1,17 +1,20 @@
 import axios from "axios";
+import { useSnackbar } from 'notistack'
 import { Card, Flex, Title, TextInput, Button } from "@tremor/react";
 import { useState } from "react";
 
 function SearchBar(props) {
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
     const [string, setString] = useState('');
 
     const search = () => {
         const getData = async () => {
             const response_ = await axios.get('http://localhost:2000/search/' + string).catch((error) => {
-                enqueueSnackbar(error, {variant: 'error'});
+                enqueueSnackbar('SearchBar\n' + error, {variant: 'error'});
             });
             const company_ = response_.data.response[0];
-            props.setResult(company_);
+            props.setCompany(company_);
         };
         getData();
     };

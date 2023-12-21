@@ -22,12 +22,12 @@ def create_user(db: Session, data: UserCreate):
     return user
 
 
-def read_user(db: Session, id_: int):
-    return db.query(User).filter(User.id == id_).first()
+def read_user(db: Session, id: int):
+    return db.query(User).filter(User.id == id).first()
 
 
-def update_user(db: Session, id_: int, data: UserBase):
-    user = db.query(User).get(id_)
+def update_user(db: Session, id: int, data: UserBase):
+    user = db.query(User).get(id)
     if not user:
         return None
     user.username = data.username
@@ -43,8 +43,8 @@ def update_user(db: Session, id_: int, data: UserBase):
     return user
 
 
-def delete_user(db: Session, id_: int):
-    rows_count = db.query(User).filter(User.id == id_).delete()
+def delete_user(db: Session, id: int):
+    rows_count = db.query(User).filter(User.id == id).delete()
     db.commit()
     return rows_count
 
