@@ -1,8 +1,11 @@
 import axios from 'axios'
-import { Card, Flex, Text, Title, Metric, NumberInput, BadgeDelta, AreaChart, Divider, Button } from "@tremor/react";
+import { useSnackbar } from 'notistack'
+import { Card, Flex, Title, Metric, NumberInput, BadgeDelta, AreaChart, Divider, Button } from "@tremor/react";
 import { useEffect, useState } from 'react';
 
 function PricePlot(props) {
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
     const [can_update, setCanUpdate] = useState(true);
     const [buy_amount, setBuyAmount] = useState('');
 
@@ -17,11 +20,15 @@ function PricePlot(props) {
 
     useEffect(() => {
         const getData = async () => {
-            const response_ = await axios.get('http://localhost:2000/prices/' + props.company.figi);
+            const response_ = await axios.get('http://localhost:2000/prices/' + props.company.figi).catch((error) => {
+                enqueueSnackbar(error, {variant: 'error'});
+            });
             const history_ = response_.data.response;
             setHistory(history_);
             setPrice(history_[history_.length - 1].close)
-            const prediction_ = await axios.post('http://localhost:3000/predict', {'input': history_});
+            const prediction_ = await axios.post('http://localhost:3000/predict', {'input': history_}).catch((error) => {
+                enqueueSnackbar(error, {variant: 'error'});
+            });
             const pred_ = prediction_.data.response;
             setPred(pred_);
 
@@ -43,11 +50,15 @@ function PricePlot(props) {
 
     useEffect(() => {
         const prices = setInterval(async () => {
-            const response_ = await axios.get('http://localhost:2000/prices/' + props.company.figi);
+            const response_ = await axios.get('http://localhost:2000/prices/' + props.company.figi).catch((error) => {
+                enqueueSnackbar(error, {variant: 'error'});
+            });
             const history_ = response_.data.response;
             setHistory(history_);
             setPrice(history_[history_.length - 1].close)
-            const prediction_ = await axios.post('http://localhost:3000/predict', {'input': history_});
+            const prediction_ = await axios.post('http://localhost:3000/predict', {'input': history_}).catch((error) => {
+                enqueueSnackbar(error, {variant: 'error'});
+            });
             const pred_ = prediction_.data.response;
             setPred(pred_);
 
@@ -73,12 +84,24 @@ function PricePlot(props) {
         setTimeout(() => setCanUpdate(true), 2000);
     }, [can_update]);
 
-    const handlerClick = (event) => {
-        if (event.target.textContent == 'Buy') {
-            console.log(`Bought`);
-        } else if (event.target.textContent == 'Sell') {
-            console.log(`Sold`);
+    const handlerClick = (sign) => {
+        const amount = parseInt(buy_amount);
+        if (amount === 0 || Number.isNaN(amount))
+            return;
+
+        const operation = {
+            user_id: props.userId,
+            figi: props.company.figi,
+            price: price,
+            amount: amount * sign,
         }
+        const getData = async () => {
+            const response = await axios.post('http://localhost:2000/operations', operation).catch((error) => {
+                enqueueSnackbar(error, {variant: 'error'});
+            });
+        }
+        getData();
+
         setBuyAmount('');
         props.needUpdateOperations();
     };
@@ -88,8 +111,10 @@ function PricePlot(props) {
             return;
         setCanUpdate(false);
         const getData = async () => {
-            let response_ = await axios.get('http://localhost:2000/close_price/' + props.company.figi);
-            let price_ = response_.data.response;
+            const response_ = await axios.get('http://localhost:2000/close_price/' + props.company.figi).catch((error) => {
+                enqueueSnackbar(error, {variant: 'error'});
+            });
+            const price_ = response_.data.response;
             setPrice(price_);
         };
         getData();
@@ -132,12 +157,12 @@ function PricePlot(props) {
                     <Button
                         className="ml-4"
                         variant="secondary"
-                        onClick={handlerClick}
+                        onClick={() => handlerClick(-1)}
                         onMouseEnter={handlerMouseEnter}
                     >Sell</Button>
                     <Button
                         className="ml-4"
-                        onClick={handlerClick}
+                        onClick={() => handlerClick(1)}
                         onMouseEnter={handlerMouseEnter}
                     >Buy</Button>
                 </Flex>

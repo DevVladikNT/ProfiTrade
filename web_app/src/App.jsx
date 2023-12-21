@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Flex, Title } from '@tremor/react'
+import { useState } from 'react'
+import { Flex } from '@tremor/react'
 
 import './App.css'
 import SearchBar from './components/SearchBar'
@@ -18,7 +18,10 @@ function App() {
         <SearchBar
           setResult={setCompany}
         />
-        <Flex flexDirection='row'>
+        <Flex
+          flexDirection='row'
+          alignItems='stretch'
+        >
           <PricePlot
             userId={user_id}
             company={company}

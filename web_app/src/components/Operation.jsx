@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Flex, Text, Title, NumberInput, Button, Metric, Divider } from "@tremor/react";
+import { Flex, Text, Title, Divider } from "@tremor/react";
 import { useEffect, useState } from "react";
 
 function Operation(props) {

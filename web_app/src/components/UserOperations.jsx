@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Card, Flex, Title, NumberInput, Button, Metric } from "@tremor/react";
+import { Card, Title } from "@tremor/react";
 import Operation from "./Operation";
 
 function UserOperations(props) {
@@ -8,7 +8,9 @@ function UserOperations(props) {
 
     useEffect(() => {
         const getData = async () => {
-            const response_ = await axios.get('http://localhost:2000/operations/' + props.userId);
+            const response_ = await axios.get('http://localhost:2000/operations/' + props.userId).catch((error) => {
+                enqueueSnackbar(error, {variant: 'error'});
+            });
             const operations_ = response_.data;
             setOperations(operations_);
         };
@@ -17,29 +19,31 @@ function UserOperations(props) {
 
     useEffect(() => {
         if (props.updateFlag) {
-            console.log(`need to update`);
             const getData = async () => {
-                const response_ = await axios.get('http://localhost:2000/operations/' + props.userId);
+                const response_ = await axios.get('http://localhost:2000/operations/' + props.userId).catch((error) => {
+                    enqueueSnackbar(error, {variant: 'error'});
+                });
                 const operations_ = response_.data;
                 setOperations(operations_);
             };
             getData();
             props.updatedOperations();
-            console.log(`updated`);
-        } else
-            console.log(`don't need update`);
+        }
     }, [props]);
 
     return (
-        <Card className="ml-4">
+        <Card className="ml-4 flex flex-col">
             <Title>History</Title>
-            {operations.map((operation, index) => (
-                <Operation
-                    key={index}
-                    figi={operation.figi}
-                    price={operation.price}
-                    amount={operation.amount}/>
-            ))}
+            
+            <div className="min-h-[100px] flex-[1_1_0] flex flex-col overflow-y-auto">
+                {operations.map((operation, index) => (
+                    <Operation
+                        key={index}
+                        figi={operation.figi}
+                        price={operation.price}
+                        amount={operation.amount}/>
+                ))}
+            </div>
         </Card>
     );
 }

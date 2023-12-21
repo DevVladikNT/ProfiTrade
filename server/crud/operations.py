@@ -15,7 +15,9 @@ def create_operation(db: Session, data: OperationBase):
     if user.balance < 0:
         return None
     available = (db.query(func.sum(Operation.amount))
-                 .filter(Operation.user_id == User.id and Operation.figi == data.figi)
+                 .filter(
+                    Operation.user_id == User.id 
+                    and Operation.figi == data.figi)
                  .first())
     # If we want to sell more than we have
     if available[0] is not None and available[0] < data.amount * -1:
@@ -42,7 +44,10 @@ def create_operation(db: Session, data: OperationBase):
 
 
 def read_operations(db: Session, user_id: int):
-    data = db.query(Operation).filter(Operation.user_id == user_id).all()
+    data = (db.query(Operation)
+            .filter(Operation.user_id == user_id)
+            .order_by(Operation.time.desc())
+            .all())
     if not data:
         return None
     return data

@@ -1,7 +1,7 @@
 import re
 
 import pandas as pd
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from scheduler import run_scheduler, CLOSE_PRICE, PRICES
 
@@ -36,7 +36,7 @@ async def price_list(figi: str):
     if figi in PRICES.keys():
         response = PRICES.get(figi)["close"].tolist()
     else:
-        response = []
+        raise HTTPException(status_code=404)
 
     return {
         'response': response
@@ -55,7 +55,7 @@ async def data(figi: str):
     if figi in PRICES.keys():
         response = PRICES.get(figi).to_dict("records")
     else:
-        response = []
+        raise HTTPException(status_code=404)
 
     return {
         'response': response
@@ -92,11 +92,9 @@ async def search(string: str):
 
     # If haven't been found
     if len(figi_list) == 0:
-        response = 'Company not found'
+        raise HTTPException(status_code=404)
     else:
         response = figi_list.to_dict("records")
-
-    print(type(response))
 
     return {
         'response': response

@@ -36,9 +36,9 @@ async def get_info(message: Message):
         companies_info = response.json()['response']
         company = companies_info[0]
         response = requests.get(f'http://127.0.0.1:2000/close_prices/{figi}')
-        price_list = response.json()['response']
+        price_list = response.json().get('response', None)
         if not price_list:
-            await message.answer('This company is anavailable now')
+            await message.answer('This company is unavailable now')
             return
 
         # mean = np.mean(price_list[-4:])

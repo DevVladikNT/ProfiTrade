@@ -7,7 +7,9 @@ function SearchBar(props) {
 
     const search = () => {
         const getData = async () => {
-            const response_ = await axios.get('http://localhost:2000/search/' + string);
+            const response_ = await axios.get('http://localhost:2000/search/' + string).catch((error) => {
+                enqueueSnackbar(error, {variant: 'error'});
+            });
             const company_ = response_.data.response[0];
             props.setResult(company_);
         };
@@ -29,7 +31,7 @@ function SearchBar(props) {
                     onKeyDown={onKeyDown}
                     placeholder="Name / Ticker / Figi"
                 />
-                <Button className="ml-5" onClick={search}>Search</Button>
+                <Button className="ml-4" onClick={search}>Search</Button>
             </Flex>
         </Card>
     );
