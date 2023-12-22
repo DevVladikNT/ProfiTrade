@@ -19,6 +19,8 @@ function App() {
   const [update_operations, setUpdateOperations] = useState(true);
   const [update_profile, setUpdateProfile] = useState(true);
 
+  console.log(company);
+
   const login = (user) => {
     setUser(user);
     setOperations([]);
@@ -33,9 +35,9 @@ function App() {
   useEffect(() => {
     const getData = async () => {
       if (user.id === -1)
-        return
+        return;
       let no_user = false;
-      const response_ = await axios.get('http://localhost:2000/users/' + user.id).catch((error) => {
+      const response_ = await axios.get('http://localhost:2000/users/' + user.id + '?device=' + device).catch((error) => {
         // enqueueSnackbar('App\n' + error, {variant: 'error'});
         no_user = true;
       });
@@ -75,7 +77,7 @@ function App() {
               needUpdate={() => turnOnFlags()}
             />
             <UserOperations
-            device={device}
+              device={device}
               user={user}
               company={company}
               operations={operations}

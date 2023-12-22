@@ -29,7 +29,7 @@ function Profile(props) {
             const user_id_ = await axios.put('http://localhost:2000/tokens', token_).catch((error) => {
                 enqueueSnackbar('Profile\n' + error, {variant: 'error'});
             });
-            const response_ = await axios.get('http://localhost:2000/users/' + user_id_.data).catch((error) => {
+            const response_ = await axios.get('http://localhost:2000/users/' + user_id_.data + '?device=' + props.device).catch((error) => {
                 enqueueSnackbar('Profile\n' + error, {variant: 'error'});
             });
             const user_ = response_.data;
@@ -91,7 +91,7 @@ function Profile(props) {
             <Metric className="text-center">{Number((props.user.balance).toFixed(2))}</Metric>
             <Divider />
             <div className="min-h-[100px] flex-[1_1_0] flex flex-col overflow-y-auto">
-                {props.operations.map((operation) => {
+                {props.operations.map((operation, index) => {
                     operation.figi in figi_counters ?
                     figi_counters[operation.figi] += operation.amount :
                     figi_counters[operation.figi] = operation.amount

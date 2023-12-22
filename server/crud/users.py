@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from db.base import User
-from schemas.user import UserBase, UserCreate
+from schemas.user import UserBaseDevice, UserCreate
 
 
 def create_user(db: Session, data: UserCreate):
@@ -26,7 +26,7 @@ def read_user(db: Session, id: int):
     return db.query(User).filter(User.id == id).first()
 
 
-def update_user(db: Session, id: int, data: UserBase):
+def update_user(db: Session, id: int, data: UserBaseDevice):
     user = db.query(User).get(id)
     if not user:
         return None

@@ -8,18 +8,18 @@ import Operation from "./Operation";
 function UserOperations(props) {
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-    const [no_operations, setNoOperations] = useState(false);
-
     useEffect(() => {
         if (props.updateFlag) {
             const getData = async () => {
-                setNoOperations(false);
-                const response_ = await axios.get('http://localhost:2000/operations/' + props.user.id).catch((error) => {
-                    setNoOperations(true);
+                if (props.user.id === -1) {
+                    props.setOperations([]);
+                    return;
+                } 
+
+                const response_ = await axios.get('http://localhost:2000/operations/' + props.user.id + '?device=' + props.device).catch((error) => {
                     // enqueueSnackbar('UserOperations\n' + error, {variant: 'error'});
                 });
-                const operations_ = no_operations ? [] : response_.data;
-                props.setOperations(operations_);
+                props.setOperations(response_.data);
             };
             getData();
             props.updatedOperations();
@@ -30,7 +30,7 @@ function UserOperations(props) {
         <Card className="ml-4 min-w-[300px] flex flex-col">
             <Title>History</Title>
             {
-                no_operations ?
+                props.operations.length === 0 ?
                 <>
                     <Divider />
                     <Text>You haven't bought anything.</Text>

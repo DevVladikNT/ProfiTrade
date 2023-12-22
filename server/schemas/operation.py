@@ -6,6 +6,7 @@ class OperationBase(BaseModel):
     figi: str
     price: float
     amount: int
+    device: str
 
 
 class OperationModel(OperationBase):

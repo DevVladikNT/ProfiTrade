@@ -13,7 +13,8 @@ router = APIRouter()
              status_code=201,
              tags=['token'],
              summary='Create token')
-def create(db: Session = Depends(get_db), data: TokenCreate = None):
+def create(db: Session = Depends(get_db),
+           data: TokenCreate = None):
     code = tokens.create_token(db, data)
     if not code:
         raise HTTPException(status_code=403)
@@ -24,7 +25,8 @@ def create(db: Session = Depends(get_db), data: TokenCreate = None):
             status_code=202,
             tags=['token'],
             summary='Update token')
-def update(db: Session = Depends(get_db), data: TokenUpdate = None):
+def update(db: Session = Depends(get_db),
+           data: TokenUpdate = None):
     user_id = tokens.update_token(db, data)
     if not user_id:
         raise HTTPException(status_code=403)

@@ -12,3 +12,7 @@ class UserCreate(UserBase):
 
 class UserModel(UserCreate):
     balance: float
+
+
+class UserBaseDevice(UserBase):
+    device: str

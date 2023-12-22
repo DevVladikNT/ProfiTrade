@@ -22,6 +22,8 @@ function PricePlot(props) {
         const getData = async () => {
             const response_ = await axios.get('http://localhost:2000/prices/' + props.company.figi).catch((error) => {
                 enqueueSnackbar('PricePlot\n' + error, {variant: 'error'});
+                setHistory([]);
+                return;
             });
             const history_ = response_.data.response;
             setHistory(history_);
@@ -52,6 +54,8 @@ function PricePlot(props) {
         const prices = setInterval(async () => {
             const response_ = await axios.get('http://localhost:2000/prices/' + props.company.figi).catch((error) => {
                 enqueueSnackbar('PricePlot\n' + error, {variant: 'error'});
+                setHistory([]);
+                return;
             });
             const history_ = response_.data.response;
             setHistory(history_);
@@ -94,6 +98,7 @@ function PricePlot(props) {
             figi: props.company.figi,
             price: price,
             amount: amount * sign,
+            device: props.device,
         }
         const setData = async () => {
             const response = await axios.post('http://localhost:2000/operations', operation).catch((error) => {

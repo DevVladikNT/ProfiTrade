@@ -11,6 +11,9 @@ def create_token(db: Session, data: TokenCreate):
     user = db.query(User).get(data.user_id)
     if not user:
         return None
+    db.query(Token).filter(Token.user_id == user.id).delete()
+    db.commit()
+
     (pub, priv) = rsa.newkeys(512)
     token = Token(
         user_id=user.id,
@@ -53,6 +56,12 @@ def update_token(db: Session, data: TokenUpdate):
     crypto = eval(data.message)
     text = rsa.decrypt(crypto, priv)
     if token.device not in [text, '']:
+        try:
+            db.delete(token)
+            db.commit()
+            db.refresh(token)
+        except Exception as e:
+            print(e)
         return None
     token.device = text
 
